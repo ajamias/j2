@@ -23,52 +23,55 @@ The intended installation and configuration method is through `openclaw`, but th
 installation scripts and documentation located in `scripts` for other platforms like `claude-cli`,
 `codex`, and `opencode`.
 
-<!-- The workflow is a work in progress. It will be more flushed out when I actually start this project -->
-## Example Workflow
+### Claude Code
 
-### Onboarding
-
-You, the user, just got assigned a new role with a new codebase. To set up J2, run the `/j2-onboard`
-skill, which will spin up a subagent dedicated to exploring the codebase and creating an initial map
-of interacting components. Rerun the skill whenever new repos get added.
-
-### Planning/research
-
-Now you are ready to take on your first contributions. Run the `/j2-sdlc` skill with some context
-on what you would like to be built. For example:
-
-```text
-/js-sdlc a customer wants a feature to keep track of their api usage
-/js-sdlc build the feature specified in a PRD located in ~/feature.pdf
-/js-sdlc resolve the most recent github issue assigned to me for this project
+```bash
+git clone https://github.com/ajamias/j2.git
+cd j2
+./install.sh
 ```
 
-### Design
+One-shot additive install that configures three tools as global capabilities:
 
-**Skills used:** [superpowers](https://github.com/obra/superpowers)
+- **[agent-skills](https://github.com/addyosmani/agent-skills)** — structured development workflow skills (plan, review, test, ship, etc.)
+- **[graphify](https://github.com/Graphify-Labs/graphify)** — knowledge-graph-based codebase exploration, exposed as a common `codebase-context` capability (not coupled to individual skills)
+- **[caveman](https://github.com/JuliusBrussee/caveman)** — terse output policy for user-facing communication (reasoning uses normal language)
 
-The agent will walk you through a step-by-step design process, and will require approval before it
-spins up the implementation subagents.
+#### Prerequisites
 
-### Implementation
+- [Claude Code](https://claude.ai/code) CLI installed
+- [uv](https://docs.astral.sh/uv/) (installed automatically if missing)
 
-**Skills used:** [superpowers](https://github.com/obra/superpowers), [ponytail](https://github.com/DietrichGebert/ponytail).
+#### Architecture
 
-A team of subagents will spin up to first create test cases that align with the design, and then
-fulfill the functionality from the design specification.
+The install is **additive** — it never overwrites or removes existing `~/.claude/` configuration.
 
-### Testing/refactoring
+```
+~/.claude/
+├── CLAUDE.md              ← policies appended (codebase-context, caveman output)
+├── skills/
+│   ├── codebase-context/  ← graphify-first exploration strategy
+│   └── graphify/          ← graphify's own skill (installed by graphify CLI)
+├── plugins/
+│   ├── agent-skills       ← dev workflow skills
+│   └── caveman            ← terse output plugin
+└── settings.json          ← plugins enabled
+```
 
-**Skills used:** [ponytail](https://github.com/DietrichGebert/ponytail).
+**Design decisions:**
 
-A dedicated code auditor subagent will fix any compile/test errors, audit security, and simplify
-code.
+- **Graphify is a common capability, not per-skill wiring.** A `codebase-context` skill teaches the agent "use the graph before exploring" — individual skills don't need to know about graphify.
+- **Caveman is a global output policy.** Terse style applies to user-facing output only. Internal reasoning, code comments, and commit messages use normal language.
+- **Install once, use everywhere.** The harness lives in `~/.claude/` and applies to every project.
 
-### Deployment
+#### Post-Install
 
-You can either approve or reject the changes and tell the agent what other changes need to be made.
+In any project:
 
-### Maintenance
+```bash
+# Build the initial knowledge graph
+/graphify .
 
-A subagent is created with the task of maintaining the documentation and agent specific files that
-potentially needs updates due to the code changes. This includes custom skills and agent contexts.
+# Set up auto-rebuild on commits
+graphify hook install
+```
