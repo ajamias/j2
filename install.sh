@@ -63,7 +63,21 @@ cp "${SCRIPT_DIR}/skills/codebase-context/SKILL.md" "${CODEBASE_SKILL_DIR}/SKILL
 ok "codebase-context skill installed"
 
 # ---------------------------------------------------------------------------
-# 5. Global CLAUDE.md policies (additive)
+# 5. apple-design skill (from emilkowalski/skills)
+# ---------------------------------------------------------------------------
+info "Installing apple-design skill..."
+APPLE_SKILL_DIR="${SKILLS_DIR}/apple-design"
+if [ -f "${APPLE_SKILL_DIR}/SKILL.md" ]; then
+  ok "apple-design skill already installed, skipping"
+else
+  mkdir -p "${APPLE_SKILL_DIR}"
+  curl -fsSL "https://raw.githubusercontent.com/emilkowalski/skills/main/skills/apple-design/SKILL.md" \
+    -o "${APPLE_SKILL_DIR}/SKILL.md"
+  ok "apple-design skill installed"
+fi
+
+# ---------------------------------------------------------------------------
+# 6. Global CLAUDE.md policies (additive)
 # ---------------------------------------------------------------------------
 info "Configuring global CLAUDE.md policies..."
 
@@ -82,6 +96,20 @@ POLICY
   ok "codebase-context policy added to CLAUDE.md"
 fi
 
+APPLE_MARKER="# j2: apple-design policy"
+
+if grep -qF "${APPLE_MARKER}" "${CLAUDE_MD}" 2>/dev/null; then
+  ok "apple-design policy already in CLAUDE.md, skipping"
+else
+  cat >> "${CLAUDE_MD}" <<'POLICY'
+
+# j2: apple-design policy
+- **apple-design** (`~/.claude/skills/apple-design/SKILL.md`) — Apple's design principles for fluid interfaces, spring animations, typography, materials, and accessibility. Trigger: any UI/frontend implementation or review work.
+When building or reviewing UI components, interfaces, animations, or visual design, use the apple-design skill alongside frontend-ui-engineering for design guidance.
+POLICY
+  ok "apple-design policy added to CLAUDE.md"
+fi
+
 if grep -qF "${CAVEMAN_MARKER}" "${CLAUDE_MD}" 2>/dev/null; then
   ok "caveman output policy already in CLAUDE.md, skipping"
 else
@@ -94,7 +122,7 @@ POLICY
 fi
 
 # ---------------------------------------------------------------------------
-# 6. Enable plugins in settings.json (additive)
+# 7. Enable plugins in settings.json (additive)
 # ---------------------------------------------------------------------------
 info "Ensuring plugins are enabled in settings.json..."
 SETTINGS="${CLAUDE_DIR}/settings.json"
@@ -140,6 +168,7 @@ echo "   - agent-skills plugin (dev workflow skills)"
 echo "   - graphify CLI + skill (knowledge graph codebase exploration)"
 echo "   - caveman plugin (terse output policy)"
 echo "   - codebase-context skill (graphify-first exploration strategy)"
+echo "   - apple-design skill (Apple design principles for UI work)"
 echo ""
 info "To use in a project: cd into it and run '/graphify .' to build the initial graph."
 info "Then run 'graphify hook install' to auto-rebuild on commits."
