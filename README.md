@@ -36,6 +36,7 @@ One-shot additive install that configures three tools as global capabilities:
 - **[agent-skills](https://github.com/addyosmani/agent-skills)** — structured development workflow skills (plan, review, test, ship, etc.)
 - **[graphify](https://github.com/Graphify-Labs/graphify)** — knowledge-graph-based codebase exploration, exposed as a common `codebase-context` capability (not coupled to individual skills)
 - **[caveman](https://github.com/JuliusBrussee/caveman)** — terse output policy for user-facing communication (reasoning uses normal language)
+- **jira** (optional) — MCP server for read-only Jira ticket context (description, acceptance criteria, comments)
 
 #### Prerequisites
 
@@ -49,13 +50,14 @@ The install is **additive** — it never overwrites or removes existing `~/.clau
 ```
 ~/.claude/
 ├── CLAUDE.md              ← policies appended (codebase-context, caveman output)
+├── .jira-env              ← Jira credentials (created if Jira enabled, chmod 600)
 ├── skills/
 │   ├── codebase-context/  ← graphify-first exploration strategy
 │   └── graphify/          ← graphify's own skill (installed by graphify CLI)
 ├── plugins/
 │   ├── agent-skills       ← dev workflow skills
 │   └── caveman            ← terse output plugin
-└── settings.json          ← plugins enabled
+└── settings.json          ← plugins + MCP servers enabled
 ```
 
 **Design decisions:**

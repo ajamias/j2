@@ -4,6 +4,7 @@ set -euo pipefail
 CLAUDE_DIR="${HOME}/.claude"
 CLAUDE_MD="${CLAUDE_DIR}/CLAUDE.md"
 SKILLS_DIR="${CLAUDE_DIR}/skills"
+SETTINGS="${CLAUDE_DIR}/settings.json"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 info()  { printf '\033[1;34m=>\033[0m %s\n' "$*"; }
@@ -122,10 +123,64 @@ POLICY
 fi
 
 # ---------------------------------------------------------------------------
-# 7. Enable plugins in settings.json (additive)
+# 7. Jira MCP server (optional)
+# ---------------------------------------------------------------------------
+info "Jira integration (optional — read-only ticket context for Claude)"
+JIRA_ENV="${CLAUDE_DIR}/.jira-env"
+
+if [ -f "${JIRA_ENV}" ]; then
+  ok "Jira already configured (${JIRA_ENV}), skipping"
+else
+  read -rp "  Configure Jira integration? [y/N] " jira_yn
+  if [[ "${jira_yn}" =~ ^[Yy]$ ]]; then
+    read -rp "  Jira URL (e.g. https://myorg.atlassian.net): " jira_url
+    read -rp "  Jira email: " jira_email
+    read -rsp "  Jira API token: " jira_token
+    echo ""
+
+    cat > "${JIRA_ENV}" <<EOF
+JIRA_URL=${jira_url}
+JIRA_EMAIL=${jira_email}
+JIRA_API_TOKEN=${jira_token}
+EOF
+    chmod 600 "${JIRA_ENV}"
+    ok "Jira credentials saved to ${JIRA_ENV}"
+
+    # Add MCP server to settings.json
+    JIRA_SERVER_PATH="${SCRIPT_DIR}/mcp-servers/jira/server.py"
+    python3 -c "
+import json
+settings_path = '${SETTINGS}'
+try:
+    with open(settings_path) as f:
+        s = json.load(f)
+except FileNotFoundError:
+    s = {}
+mcp = s.setdefault('mcpServers', {})
+if 'jira' not in mcp:
+    mcp['jira'] = {
+        'command': 'uv',
+        'args': ['run', '--with', 'mcp[cli],httpx', '${JIRA_SERVER_PATH}'],
+        'env': {
+            'JIRA_URL': '${jira_url}',
+            'JIRA_EMAIL': '${jira_email}',
+            'JIRA_API_TOKEN': '${jira_token}'
+        }
+    }
+    with open(settings_path, 'w') as f:
+        json.dump(s, f, indent=2)
+        f.write('\n')
+"
+    ok "Jira MCP server added to settings.json"
+  else
+    ok "Skipping Jira setup"
+  fi
+fi
+
+# ---------------------------------------------------------------------------
+# 8. Enable plugins in settings.json (additive)
 # ---------------------------------------------------------------------------
 info "Ensuring plugins are enabled in settings.json..."
-SETTINGS="${CLAUDE_DIR}/settings.json"
 if [ -f "${SETTINGS}" ]; then
   needs_update=false
   for plugin in "agent-skills@addy-agent-skills" "caveman@caveman"; do
@@ -169,6 +224,9 @@ echo "   - graphify CLI + skill (knowledge graph codebase exploration)"
 echo "   - caveman plugin (terse output policy)"
 echo "   - codebase-context skill (graphify-first exploration strategy)"
 echo "   - apple-design skill (Apple design principles for UI work)"
+if [ -f "${JIRA_ENV}" ]; then
+  echo "   - jira MCP server (read-only ticket context)"
+fi
 echo ""
 info "To use in a project: cd into it and run '/graphify .' to build the initial graph."
 info "Then run 'graphify hook install' to auto-rebuild on commits."

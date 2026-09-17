@@ -1,0 +1,22 @@
+{
+  "install.sh": {
+    "mtime": 1787087900.266879,
+    "ast_hash": "46a2523a2884a7799cd9b950cb0acd5c",
+    "semantic_hash": "46a2523a2884a7799cd9b950cb0acd5c"
+  },
+  "README.md": {
+    "mtime": 1787087911.7240784,
+    "ast_hash": "237580bc1236e6881ae085092d211835",
+    "semantic_hash": "237580bc1236e6881ae085092d211835"
+  },
+  "skills/codebase-context/SKILL.md": {
+    "mtime": 1786594585.385145,
+    "ast_hash": "91df513e092f0e8a586a0e668a4353cf",
+    "semantic_hash": "91df513e092f0e8a586a0e668a4353cf"
+  },
+  "mcp-servers/jira/server.py": {
+    "mtime": 1787087863.701243,
+    "ast_hash": "a49b32c3f2ed3eaa6dcba1c26f055ab2",
+    "semantic_hash": "a49b32c3f2ed3eaa6dcba1c26f055ab2"
+  }
+}
