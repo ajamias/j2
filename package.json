@@ -1,0 +1,27 @@
+{
+  "name": "skills-agent",
+  "version": "0.1.0",
+  "description": "A LangGraph agent where each node is a skill from addyosmani/agent-skills",
+  "type": "module",
+  "main": "dist/graph.js",
+  "bin": {
+    "skills-agent": "dist/cli.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "cli": "bun run src/cli.ts",
+    "graph": "bun run src/mermaid.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@anthropic-ai/claude-agent-sdk": "^0.3.278",
+    "@langchain/core": "^1.1.48",
+    "@langchain/langgraph": "^1.4.16",
+    "@openai/agents": "^0.4.0",
+    "zod": "^3.25.0"
+  },
+  "devDependencies": {
+    "@types/bun": "^1.1.0",
+    "typescript": "^5.5.0"
+  }
+}
