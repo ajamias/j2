@@ -7,17 +7,21 @@
     "skills-agent": "dist/index.js"
   },
   "scripts": {
+    "lint": "bun run eslint .",
+    "typecheck": "tsc --noEmit",
+    "test": "bun test",
     "build": "tsc",
-    "dev": "bun run src/index.ts",
-    "typecheck": "tsc --noEmit"
+    "dev": "bun run src/index.ts"
   },
   "dependencies": {
     "commander": "^15.0.0",
     "tslog": "^5.2.0"
   },
   "devDependencies": {
-    "@types/bun": "^1.1.0",
+    "@eslint/js": "^10.0.1",
     "@types/node": "^26.6.5",
-    "typescript": "^5.5.0"
+    "eslint": "^10.12.0",
+    "typescript": "^5.5.0",
+    "typescript-eslint": "^8.71.2"
   }
 }
