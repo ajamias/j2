@@ -1,8 +1,0 @@
-{
-  "node_version": "20",
-  "dependencies": ["."],
-  "graphs": {
-    "skills_agent": "./src/graph.ts:graph"
-  },
-  "env": "./.env"
-}
