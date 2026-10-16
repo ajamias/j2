@@ -1,0 +1,64 @@
+{
+  "ingest:interview-me": {
+    "summary": "Extract what the user actually wants through a one-question-at-a-time interview.",
+    "whenToUse": "An ask is underspecified, or the user explicitly says 'interview me' or 'stress-test my thinking'.",
+    "produces": "A restated brief covering outcome, user, why now, success criteria, constraints, and what is out of scope.",
+    "interactive": true,
+    "arguments": [],
+    "references": [],
+    "effort": "medium"
+  },
+  "classify": {
+    "setKind": "software lifecycle phase skills",
+    "title": "Define phase intake",
+    "description": "Interviews the user until their intent is clear, then hands downstream steps a confirmed brief.",
+    "order": [
+      "interview-me"
+    ],
+    "rationale": "Only one skill is present, and it runs before any plan or code exists."
+  },
+  "design:interview-me": {
+    "outputFields": [
+      {
+        "name": "outcome",
+        "kind": "string",
+        "optional": false,
+        "description": "What the user actually wants, in one sentence."
+      },
+      {
+        "name": "user",
+        "kind": "string",
+        "optional": false,
+        "description": "Who the result is for."
+      },
+      {
+        "name": "successCriteria",
+        "kind": "stringList",
+        "optional": false,
+        "description": "Observable conditions that mean the work succeeded."
+      },
+      {
+        "name": "outOfScope",
+        "kind": "stringList",
+        "optional": false,
+        "description": "Things explicitly ruled out."
+      },
+      {
+        "name": "confidence",
+        "kind": "number",
+        "optional": false,
+        "description": "Confidence in the restated intent, 0 to 100."
+      }
+    ],
+    "reads": [],
+    "tools": [
+      "ask_human",
+      "read_file",
+      "list_dir",
+      "grep"
+    ],
+    "size": "large",
+    "maxIterations": 40,
+    "systemGuidance": "This is the first step, so there is no upstream context. Interview the user until you can fill every output field with their words rather than your assumptions, then stop."
+  }
+}
